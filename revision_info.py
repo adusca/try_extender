@@ -20,7 +20,7 @@ TRY_URL = 'https://hg.mozilla.org/try/json-pushes?tipsonly=1'
 
 
 def generate_builders_relations_dictionary():
-    """Create a dictionary that maps every upstream job to its downstream jobs."""
+    """Create a mapping from upstream jobs to their downstream jobs."""
     builders = list_builders()
     relations = collections.defaultdict(list)
     for buildername in builders:
@@ -63,7 +63,7 @@ def get_list_of_commits(author):
         url = TRY_URL
     else:
         url = "%s&user=%s" % (TRY_URL, author)
-    list_of_commits= []
+    list_of_commits = []
     data = requests.get(url).json()
 
     for push in data:
@@ -146,11 +146,13 @@ def jobs_per_revision(revision):
         processed_jobs[build_job]['possible'] = possible_downstream
         processed_jobs[build_job]['existing'].sort()
 
-    all_build_jobs = get_upstream_buildernames(' try ') + get_upstream_buildernames('_try_')
-    for build_job in all_build_jobs:
-        if build_job not in processed_jobs.keys() + processed_jobs['new_builds']['existing']:
-            processed_jobs["new_builds"]['possible'].append(build_job)
-    processed_jobs["new_builds"]['possible'].sort()
+    all_build_jobs = set(get_upstream_buildernames(' try ') +
+                         get_upstream_buildernames('_try_') +
+                         get_upstream_buildernames('-try-'))
+    existing_builds = set(processed_jobs.keys() +
+                          processed_jobs['new_builds']['existing'])
+    processed_jobs["new_builds"]["possible"] = list(all_build_jobs -
+                                                    existing_builds)
 
     return processed_jobs
 
