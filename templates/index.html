@@ -58,7 +58,7 @@
 
         function get_checkbox(name, pre_checked){
             if (pre_checked === true){
-                return "<label><input type='checkbox' name='" + encodeURIComponent(name) + "' value='" + encodeURIComponent(name) + "' disabled>" + name + "</label><br>";
+                return "<label><input type='checkbox' name='" + encodeURIComponent(name) + "' value='" + encodeURIComponent(name) + "' disabled><s>" + name + "</s></label><br>";
             }
             else {
                 return "<label><input type='checkbox' name='" + encodeURIComponent(name) + "' value='" + encodeURIComponent(name) + "'>" + name + "</label><br>";

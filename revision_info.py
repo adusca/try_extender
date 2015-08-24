@@ -126,7 +126,7 @@ def jobs_per_revision(revision):
         buildername, status = build_job
         if status == 0:
             processed_jobs[buildername] = {'existing': [], 'possible': []}
-        else:
+        elif status != 6:  # Cancelled jobs should be treated as non-existing
             processed_jobs['new_builds']['existing'].append(buildername)
 
     for test_job in downtream_jobs:
@@ -151,8 +151,8 @@ def jobs_per_revision(revision):
                          get_upstream_buildernames('-try-'))
     existing_builds = set(processed_jobs.keys() +
                           processed_jobs['new_builds']['existing'])
-    processed_jobs["new_builds"]["possible"] = list(all_build_jobs -
-                                                    existing_builds)
+    processed_jobs["new_builds"]["possible"] = sorted(list(all_build_jobs -
+                                                           existing_builds))
 
     return processed_jobs
 
