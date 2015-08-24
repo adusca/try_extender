@@ -8,6 +8,7 @@ from mozci.sources.allthethings import list_builders
 from mozci.platforms import is_downstream, determine_upstream_builder, \
     filter_buildernames
 from mozci.utils.authentication import get_credentials
+from mozci.sources.pushlog import valid_revision
 
 
 LOG = logging.getLogger()
@@ -16,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 RESULTS = ['success', 'warning', 'failure', 'skipped', 'exception', 'retry', 'cancelled',
            'pending', 'running', 'coalesced', 'unknown']
 
-TRY_URL = 'https://hg.mozilla.org/try/json-pushes?tipsonly=1'
+TRY_URL = 'https://hg.mozilla.org/try'
 
 
 def generate_builders_relations_dictionary():
@@ -51,7 +52,7 @@ def get_upstream_buildernames(repo_name):
 
 def get_author(rev):
     """Get the author of a revision."""
-    url = "%s&changeset=%s" % (TRY_URL, rev)
+    url = "%s/json-pushes?tipsonly=1&changeset=%s" % (TRY_URL, rev)
     data = requests.get(url).json()
     for push in data:
         return data[push]['user']
@@ -80,7 +81,10 @@ def get_jobs(rev):
     req = requests.get(url, auth=get_credentials())
 
     if req.status_code not in [200]:
-        raise Exception
+        if valid_revision(TRY_URL, rev):
+            return []
+        else:
+            raise Exception
 
     data = req.json()
     jobs = []
