@@ -60,10 +60,9 @@ def get_author(rev):
 
 def get_list_of_commits(author):
     """Get a list of commits made by a person. If author is None return most recent commits."""
-    if author is None:
-        url = TRY_URL
-    else:
-        url = "%s&user=%s" % (TRY_URL, author)
+    url = "%s/json-pushes?tipsonly=1" % (TRY_URL)
+    if author is not None:
+        url = "%s&user=%s" % (url, author)
     list_of_commits = []
     data = requests.get(url).json()
 
